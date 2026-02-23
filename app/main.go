@@ -26,7 +26,11 @@ func main() {
 			continue
 		}
 
-		implementedCommands := []string{"echo", "exit", "type"}
+		builtins := map[string]bool{
+			"echo": true,
+			"exit": true,
+			"type": true,
+		}
 
 		switch parts[0] {
 		case "echo":
@@ -39,22 +43,14 @@ func main() {
 				continue
 			}
 			cmd := parts[1]
-			if contains(implementedCommands, cmd) {
+			if builtins[cmd] {
 				fmt.Printf("%s is a shell builtin\n", cmd)
+			} else {
+				fmt.Println(cmd + ": command not found")
 			}
-			fmt.Println(cmd + ": command not found")
 
 		default:
 			fmt.Println(command + ": command not found")
 		}
 	}
-}
-
-func contains(implementedCommands []string, cmd string) bool {
-	for _, c := range implementedCommands {
-		if c == cmd {
-			return true
-		}
-	}
-	return false
 }

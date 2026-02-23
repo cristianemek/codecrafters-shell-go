@@ -24,7 +24,6 @@ func main() {
 
 		switch command {
 		case "exit":
-			fmt.Println("Exiting...")
 			os.Exit(0)
 		}
 

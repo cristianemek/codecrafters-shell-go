@@ -22,6 +22,11 @@ func main() {
 		}
 		command = strings.TrimSpace(command)
 
+		isEcho := strings.HasPrefix(command, "echo ")
+		if isEcho {
+			fmt.Println(command[5:])
+			continue
+		}
 		switch command {
 		case "exit":
 			os.Exit(0)

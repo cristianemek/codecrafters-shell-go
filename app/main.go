@@ -65,6 +65,7 @@ func main() {
 			}
 			if isExecutable(cmd) {
 				execCmd := exec.Command(cmd, parts[1:]...)
+				execCmd.Args[0] = parts[0]
 				execCmd.Stdin = os.Stdin
 				execCmd.Stdout = os.Stdout
 				execCmd.Stderr = os.Stderr

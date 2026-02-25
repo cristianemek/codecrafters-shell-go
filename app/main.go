@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -47,29 +48,54 @@ func main() {
 			if builtins[cmd] {
 				fmt.Printf("%s is a shell builtin\n", cmd)
 			} else {
-				// Check if the command exists in PATH os.PathListSeparator
-				found := false
-				dirs := strings.SplitSeq(os.Getenv("PATH"), string(os.PathListSeparator))
-
-				for dir := range dirs {
-					//existe
-					fullPath := filepath.Join(dir, cmd)
-					if info, err := os.Stat(fullPath); err == nil {
-						//permisos ejecucion
-						if info.Mode().Perm()&0111 != 0 {
-							fmt.Printf("%s is %s/%s\n", cmd, dir, cmd)
-							found = true
-							break
-						}
+				if fullPath, found := searchInPath(cmd); found {
+					if isExecutable(fullPath) {
+						fmt.Printf("%s is %s\n", cmd, fullPath)
 					}
-				}
-				if !found {
+				} else {
 					fmt.Printf("%s: not found\n", cmd)
 				}
 			}
 
 		default:
-			fmt.Println(command + ": command not found")
+			cmd, found := searchInPath(parts[0])
+			if !found {
+				fmt.Printf("%s: command not found\n", parts[0])
+				continue
+			}
+			if isExecutable(cmd) {
+				execCmd := exec.Command(cmd, parts[1:]...)
+				execCmd.Stdin = os.Stdin
+				execCmd.Stdout = os.Stdout
+				execCmd.Stderr = os.Stderr
+				if err := execCmd.Run(); err != nil {
+					fmt.Fprintln(os.Stderr, "Error executing command:", err)
+				}
+			}
+
 		}
 	}
+}
+
+func isExecutable(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.Mode().Perm()&0111 != 0
+}
+
+func searchInPath(cmd string) (string, bool) {
+	dirs := strings.SplitSeq(os.Getenv("PATH"), string(os.PathListSeparator))
+
+	for dir := range dirs {
+		//existe
+		fullPath := filepath.Join(dir, cmd)
+		if _, err := os.Stat(fullPath); err == nil {
+			if isExecutable(fullPath) {
+				return fullPath, true
+			}
+		}
+	}
+	return "", false
 }

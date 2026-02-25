@@ -32,6 +32,7 @@ func main() {
 			"echo": true,
 			"exit": true,
 			"type": true,
+			"pwd":  true,
 		}
 
 		switch parts[0] {
@@ -39,6 +40,13 @@ func main() {
 			fmt.Println(strings.Join(parts[1:], " "))
 		case "exit":
 			os.Exit(0)
+		case "pwd":
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Error getting current directory:", err)
+			} else {
+				fmt.Println(dir)
+			}
 		case "type":
 			if len(parts) < 2 {
 				fmt.Println("Usage: type <command>")
@@ -63,15 +71,13 @@ func main() {
 				fmt.Printf("%s: command not found\n", parts[0])
 				continue
 			}
-			if isExecutable(cmd) {
-				execCmd := exec.Command(cmd, parts[1:]...)
-				execCmd.Args[0] = parts[0]
-				execCmd.Stdin = os.Stdin
-				execCmd.Stdout = os.Stdout
-				execCmd.Stderr = os.Stderr
-				if err := execCmd.Run(); err != nil {
-					fmt.Fprintln(os.Stderr, "Error executing command:", err)
-				}
+			execCmd := exec.Command(cmd, parts[1:]...)
+			execCmd.Args[0] = parts[0]
+			execCmd.Stdin = os.Stdin   //a la salida del comando le asignamos la entrada estandar teclado
+			execCmd.Stdout = os.Stdout //a la salida del comando le asignamos la salida estandar pantalla
+			execCmd.Stderr = os.Stderr //salida de errores
+			if err := execCmd.Run(); err != nil {
+				fmt.Fprintln(os.Stderr, "Error executing command:", err)
 			}
 
 		}

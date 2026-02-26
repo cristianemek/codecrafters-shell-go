@@ -21,8 +21,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		command = strings.TrimSpace(command)
-		parts := strings.Fields(command)
+		parts := parseCommand(command)
 
 		if len(parts) == 0 {
 			continue
@@ -124,4 +123,32 @@ func searchInPath(cmd string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func parseCommand(cmd string) []string {
+	args := []string{}
+	current := ""
+	inQuotes := false
+
+	for _, c := range cmd { // c es rune, asi soporta caracteres unicode
+		if c == '\'' { // comilla simple
+			inQuotes = !inQuotes
+			continue
+		} else if c == ' ' || c == '\t' { // si es un espacio o tabulador
+			if !inQuotes { //si no estamos dentro de comillas, es un separador de argumentos
+				args = append(args, current) //añadimos el argumento actual a la lista de argumentos
+				current = ""
+				continue
+			} else {
+				current += string(c) //si estamos dentro de comillas, el espacio es parte del argumento
+			}
+		} else {
+			current += string(c) // cualquier otro carácter, añadir a current
+		}
+	}
+
+	if current != "" {
+		args = append(args, current) //añadir el último argumento si no está vacío
+	}
+	return args
 }

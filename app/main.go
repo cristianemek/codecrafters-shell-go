@@ -43,9 +43,18 @@ func main() {
 			if len(parts) < 2 {
 				continue
 			}
-			err := os.Chdir(parts[1])
+
+			route := parts[1]
+			if route == "~" {
+				homeDir, err := os.UserHomeDir()
+				if err != nil {
+					continue
+				}
+				route = homeDir
+			}
+			err := os.Chdir(route)
 			if err != nil {
-				fmt.Printf("cd: %s: No such file or directory\n", parts[1])
+				fmt.Printf("cd: %s: No such file or directory\n", route)
 			}
 
 		case "exit":

@@ -21,6 +21,7 @@ func main() {
 			os.Exit(1)
 		}
 
+		command = strings.TrimSpace(command)
 		parts := parseCommand(command)
 
 		if len(parts) == 0 {
@@ -136,8 +137,10 @@ func parseCommand(cmd string) []string {
 			continue
 		} else if c == ' ' || c == '\t' { // si es un espacio o tabulador
 			if !inQuotes { //si no estamos dentro de comillas, es un separador de argumentos
-				args = append(args, current) //añadimos el argumento actual a la lista de argumentos
-				current = ""
+				if current != "" {
+					args = append(args, current) //añadimos el argumento actual a la lista de argumentos
+					current = ""
+				}
 				continue
 			} else {
 				current += string(c) //si estamos dentro de comillas, el espacio es parte del argumento

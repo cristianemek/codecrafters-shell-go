@@ -33,11 +33,24 @@ func main() {
 			"exit": true,
 			"type": true,
 			"pwd":  true,
+			"cd":   true,
 		}
 
 		switch parts[0] {
 		case "echo":
 			fmt.Println(strings.Join(parts[1:], " "))
+		case "cd":
+			if len(parts) < 2 {
+				continue
+			}
+			if !strings.HasPrefix(parts[1], "/") {
+				continue
+			}
+			err := os.Chdir(parts[1])
+			if err != nil {
+				fmt.Printf("cd: %s: No such file or directory\n", parts[1])
+			}
+
 		case "exit":
 			os.Exit(0)
 		case "pwd":

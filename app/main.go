@@ -43,9 +43,6 @@ func main() {
 			if len(parts) < 2 {
 				continue
 			}
-			if !strings.HasPrefix(parts[1], "/") {
-				continue
-			}
 			err := os.Chdir(parts[1])
 			if err != nil {
 				fmt.Printf("cd: %s: No such file or directory\n", parts[1])
